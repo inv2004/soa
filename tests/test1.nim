@@ -9,35 +9,32 @@ import unittest
 
 import soa
 
-suite "main":
-  setup:
-    type M = object
-      a: int
-      b: string
+type M = object
+  a: int
+  b: string
 
-    defineST(M, S)
+defineST(M, S)
 
-    var st = S()
-    st.add M(a: 1, b: "aaa")
-    st.add M(a: 2, b: "bbb")
+var st = S()
 
-  test "add":
-    st.add M(a: 3, b: "ccc")
-    st.add M(a: 3, b: "ddd")
-    check st.len == 4
+test "add":
+  st.add M(a: 1, b: "aaa")
+  st.add M(a: 2, b: "bbb")
+  check st.len == 2
 
-  test "len":
-    check st.len == 2
+test "len":
+  check st.len == 2
 
-  test "[]":
-    check st[0] == M(a: 1, b: "aaa")
-    check st[1] == M(a: 2, b: "bbb")
-    check optFields == ["", ""]
-    check st.len == 2
+test "[]":
+  check st[0] == M(a: 1, b: "aaa")
+  check st[1] == M(a: 2, b: "bbb")
+  check optFields == ["", ""]
+  check st.len == 2
 
-  test "opt":
-    (proc() =
-      check st[0].a == 1
-      check st[1].b == "bbb"
-      check optFields == ["a", "b"]
-    )()
+test "opt":
+  (proc() =
+    optFields = @[]
+    check st[0].a == 1
+    check st[1].b == "bbb"
+    check optFields == ["a", "b"]
+  )()
