@@ -33,7 +33,12 @@ macro defineST*(T: typedesc, st: untyped) =
   let fields = getFieldsRec(getType(T)[1])
   var code = newSeq[string]()
 
+  # debug
+  code.add "var optFields = newSeq[string]()"
+  result.add parseExprs code
+
   # type
+  code.setLen 0
   code.add fmt"type {st} = object"
   for (f, t) in fields:
     code.add fmt"  {f}: seq[{t}]"
@@ -55,24 +60,17 @@ macro defineST*(T: typedesc, st: untyped) =
   # `[]`
   code.setLen 0
   code.add fmt"proc `[]`(st: {st}, i: int): M ="
-  code.add "  echo \"no opt\""
+  code.add fmt"""  optFields.add "" """
   code.add "  M("
   code.add fields.mapIt(fmt"    {it[0]}: st.{it[0]}[i]").join(",\n")
   code.add "  )"
   result.add parseExprs code
 
-  # # opt
-  # code.setLen 0
-  # code.add fmt"""template opt{{`[]`(st,i).f}}(st: S, i: int, f: untyped): untyped ="""
-  # code.add fmt"""  echo "opt" """
-  # code.add fmt"""  st.f[i]"""
-  # result.add parseExprs code
-
   # optimizations
   for (f, t) in fields:
     code.setLen 0
     code.add fmt"""template opt{f}{{`[]`(st,i).{f}}}(st: S, i: int): {t} ="""
-    code.add fmt"""  echo "opt ", "{f}" """
+    code.add fmt"""  optFields.add "{f}" """
     code.add fmt"""  st.{f}[i]"""
     result.add parseExprs code
 
