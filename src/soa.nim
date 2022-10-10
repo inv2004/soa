@@ -70,6 +70,13 @@ macro defineST*(T: typedesc, st: untyped) =
   code.add "  )"
   result.add parseExprs code
 
+  # # opt
+  # code.setLen 0
+  # code.add fmt"""template opt{{`[]`(st,i).f}}(st: S, i: int, f: untyped): untyped ="""
+  # code.add fmt"""  echo "opt" """
+  # code.add fmt"""  st.f[i]"""
+  # result.add parseExprs code
+
   # optimizations
   for (f, t) in fields:
     code.setLen 0
@@ -77,5 +84,6 @@ macro defineST*(T: typedesc, st: untyped) =
     code.add fmt"""  echo "opt ", "{f}" """
     code.add fmt"""  st.{f}[i]"""
     result.add parseExprs code
+
 
   echo repr result
