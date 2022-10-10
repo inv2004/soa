@@ -61,13 +61,6 @@ macro defineST*(T: typedesc, st: untyped) =
   code.add "  )"
   result.add parseExprs code
 
-  # # opt
-  # code.setLen 0
-  # code.add fmt"""template opt{{`[]`(st,i).f}}(st: S, i: int, f: untyped): untyped ="""
-  # code.add fmt"""  echo "opt" """
-  # code.add fmt"""  st.f[i]"""
-  # result.add parseExprs code
-
   # optimizations
   for (f, t) in fields:
     code.setLen 0
@@ -76,4 +69,15 @@ macro defineST*(T: typedesc, st: untyped) =
     code.add fmt"""  st.{f}[i]"""
     result.add parseExprs code
 
-  echo repr result
+proc test() =
+  type M = object
+    a: int
+    b: string
+
+  defineST(M, S)
+  let s = S(a: @[1,2], b: @["aaa", "bbb"])
+  doAssert s[1] == M(a: 2, b: "bbb")
+  doAssert s[1].a == 2
+  doAssert s[1].b == "bbb"
+
+test()
