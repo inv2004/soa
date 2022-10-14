@@ -35,7 +35,7 @@ test "opt":
     check optFieldsS == ["a", "b"]
   )()
 
-test "100k":
+test "groupWith":
   type R = object
     ct: uint8
     price: float64
