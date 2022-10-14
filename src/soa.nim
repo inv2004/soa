@@ -25,7 +25,7 @@ proc getFieldsRec(t: NimNode): seq[(string, string)] =
 
 proc parseExprs(code: seq[string]): NimNode =
   # echo code.join "\n"
-  parseExpr(code.join("\n"))
+  parseExpr code.join("\n")
 
 macro defineST*(T: typedesc, st: untyped) =
   result = newStmtList()
@@ -34,7 +34,7 @@ macro defineST*(T: typedesc, st: untyped) =
   var code = newSeq[string]()
 
   # debug
-  code.add "var optFields = newSeq[string]()"
+  code.add fmt"var optFields{st} = newSeq[string]()"
   result.add parseExprs code
 
   # type
@@ -44,13 +44,26 @@ macro defineST*(T: typedesc, st: untyped) =
     code.add fmt"  {f}: seq[{t}]"
   result.add parseExprs code
 
+  #newTWith
+  var params = ""
+  for (f, t) in fields:
+    params.add fmt"; {f}With: untyped = default {t}"
+
+  code.setLen 0
+  code.add fmt"template {st}With(sz: int{params}): {st} ="
+  code.add fmt"  {st}("
+  for (f, t) in fields:
+    code.add fmt"    {f}: newSeqWith(sz, {f}With),"
+  code.add fmt"  )"
+  result.add parseExprs code
+
   #len
   code.setLen 0
   code.add fmt"proc len(st: {st}): int ="
   code.add fmt"  st.{fields[0][0]}.len"
   result.add parseExprs code
 
-  # insert
+  # add
   code.setLen 0
   code.add fmt"proc add(st: var {st}, v: {T}) ="
   for (f, t) in fields:
@@ -59,9 +72,9 @@ macro defineST*(T: typedesc, st: untyped) =
 
   # `[]`
   code.setLen 0
-  code.add fmt"proc `[]`(st: {st}, i: int): M ="
-  code.add fmt"""  optFields.add "" """
-  code.add "  M("
+  code.add fmt"proc `[]`(st: {st}, i: int): {T} ="
+  code.add fmt"""  optFields{st}.add "" """
+  code.add fmt"  {T}("
   code.add fields.mapIt(fmt"    {it[0]}: st.{it[0]}[i]").join(",\n")
   code.add "  )"
   result.add parseExprs code
@@ -70,8 +83,8 @@ macro defineST*(T: typedesc, st: untyped) =
   for (f, t) in fields:
     code.setLen 0
     code.add fmt"""template opt{f}{{`[]`(st,i).{f}}}(st: S, i: int): {t} ="""
-    code.add fmt"""  optFields.add "{f}" """
+    code.add fmt"""  optFields{st}.add "{f}" """
     code.add fmt"""  st.{f}[i]"""
     result.add parseExprs code
 
-  echo repr result
+  # echo repr result
