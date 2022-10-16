@@ -50,10 +50,10 @@ test "groupWith":
   let t = TTWith(N, rand(0'u8..3'u8), rand(0.0..50.0), rand(0'u32..50'u32))
 
   proc groupWith[R, T, U](t: R, keys: openArray[T], fn: proc(tt: R): U): Table[T, U] =
-    var tmp = initTable[T, TT]()
+    var tmp = initTable[T, R]()
     for i, k in keys:
       if k notin tmp:
-        tmp[k] = TT()
+        tmp[k] = R()
       tmp[k].add t[i]
 
     result = initTable[T, U]()

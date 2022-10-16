@@ -1,1 +1,3 @@
 tests/test_soa
+src/kv
+bench/kv_bench

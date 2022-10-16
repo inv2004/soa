@@ -10,3 +10,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 1.6.2"
+requires "zero_functional"
+
+task bench, "bench":
+  exec """nim c -d:release --gc:arc -r bench/kv_bench.nim"""
