@@ -36,7 +36,9 @@ echo "addTag Time (", N , "): ", cpuTime() - t
 benchmark cfg:
   proc userStat2Key() {.measure.} =
     doAssert db.userStat2Key("u500").len == 32
+  echo GC_getStatistics()
+  GC_fullCollect()
 
-benchmark cfg:
   proc userStatFlat() {.measure.} =
     doAssert db.userStatFlat("u500").len == 32
+  echo GC_getStatistics()
